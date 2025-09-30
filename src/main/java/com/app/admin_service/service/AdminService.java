@@ -3,9 +3,10 @@ package com.app.admin_service.service;
 import com.app.admin_service.dto.AdminRegistrationDto;
 import com.app.admin_service.entity.Admins;
 import com.app.admin_service.repo.AdminRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class AdminService {
@@ -41,5 +42,16 @@ public class AdminService {
 
         adminRepository.save(admin);
         return "Admin registered successfully!";
+    }
+
+    public Optional<Admins> authenticate(String username, String rawPassword) {
+        Optional<Admins> adminOpt = adminRepository.findByUsername(username);
+        if (adminOpt.isPresent()) {
+            Admins admin = adminOpt.get();
+            if (passwordEncoder.matches(rawPassword, admin.getPassword())) {
+                return Optional.of(admin);
+            }
+        }
+        return Optional.empty();
     }
 }
